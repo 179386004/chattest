@@ -10,9 +10,18 @@
 
              <div class="card-body">
                
-               <el-form  class="demo-form-inline">
-          <el-form-item label="">
-       <el-input v-model="username" size="medium" placeholder="请输入用户名"></el-input>
+               <el-form  class="demo-form-inline"
+               :model="form"
+               :rules="rules"
+            
+               @keyup.enter.native="onSubmit"
+               >
+          <el-form-item label="用户名:" prop="username">
+       <el-input v-model="form.username" size="medium" placeholder="请输入用户名"></el-input>
+  </el-form-item>
+
+  <el-form-item label="密码:" prop="password">
+       <el-input v-model="form.password" show-password size="medium" placeholder="请输入密码"></el-input>
   </el-form-item>
   <div class="mb-1">请选择头像:</div>
    <div class="imgbox" border>
@@ -28,7 +37,12 @@
   
   
    <el-form-item>
-    <el-button type="primary" size="medium" class="w-100" @click="onSubmit">登陆</el-button>
+    <el-button type="primary" size="medium" class="w-100" :disabled="this.form.username==''||this.form.password==''" @click="onSubmit">登陆</el-button>
+  </el-form-item>
+
+    
+   <el-form-item>
+    <el-button type="primary" size="medium" class="w-100" @click="onRegister">注册</el-button>
   </el-form-item>
                </el-form>
                
@@ -45,6 +59,7 @@
 <script>
 // @ is an alias to /src
   import $ from 'jquery'
+  import qs from 'qs'
 
 export default {
   name: 'Login',
@@ -53,30 +68,52 @@ export default {
   data() {
       return {
          url:'',
-         username:''
+         form:{
+            username:'',
+            password:''
+         },
+         rules:{
+           username:[
+             {require:true,message:'请输入账号'},
+             {min:3,max:10,message:'用户名在3到10个字符之间'}
+
+           ]
+         }
+        
       }
   },
   methods:{
      onSubmit() {
-        var avatar = $("img.change").attr('src') 
-        this.url = avatar;
-        console.log(this.username.trim());
-        console.log(this.url);
-        if(this.url!=undefined&&this.username!=''){
-          this.$router.push('/home')
-          sessionStorage.setItem('currentavatar',this.url)
-          sessionStorage.setItem('currentuname',this.username)
-        }
-        else{
-            this.$message({
-              message:'请填写用户名并选择头像',
-              type:'warning'
-            })
-        }
+      
+      let oc = {
+        username:this.form.username,
+        password:this.form.password  
+      }
+       let obj = qs.stringify(oc)
+      this.axios.post('http://localhost:8812/api/login',
+       obj
+      ,{
+        headers:{
+      'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+      }}).then(res=>{
+
+        this.$message.success('登陆成功')
+        console.log(res.data.data.token);
+        let token = res.data.data.token
+        this.$store.commit('set_token',token)
+      }).catch(error=>{
+        console.log(error);
+        this.$message.error('请检查用户名和密码')
+      })
+
+
         
 
         
       },
+      onRegister(){
+
+      }
     
   },
   

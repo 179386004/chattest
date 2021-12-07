@@ -1,5 +1,8 @@
 <template>
   <div class="home">
+    <div class="exit">
+      <el-button type="primary" size="default" @click="onExit">退出聊天室</el-button>
+    </div>
       <div class="login">
     <div class="container">
        <div class="row ">
@@ -142,6 +145,10 @@ export default {
       this.$socket.emit('chat',{name:this.username,text:this.text,url:this.url})
       this.text = ''
       }
+    },
+    //退出登陆按钮
+    onExit(){
+
     }
 
   },
@@ -329,6 +336,11 @@ img{
 }
 .file{
   margin-left: 10px;
+}
+.exit{
+  display: flex;
+flex-direction: column;
+align-items: flex-end;
 }
 
 </style>
